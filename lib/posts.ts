@@ -1,14 +1,19 @@
 import { connection } from "next/server";
 import { sql } from "./db";
 import { POST_LIMITS } from "./post-limits";
-import { hashPostPassword } from "./post-password";
+import { hashPostPassword, verifyPostPassword } from "./post-password";
 
 export type PostField = keyof typeof POST_LIMITS;
 export type FieldErrors = Partial<Record<PostField, string>>;
 
-export type CreatePostResult =
-  | { ok: true }
-  | { ok: false; reason: "invalid"; fieldErrors: FieldErrors };
+type Ok = { ok: true };
+type Invalid = { ok: false; reason: "invalid"; fieldErrors: FieldErrors };
+type WrongPassword = { ok: false; reason: "wrong-password" };
+type NotFound = { ok: false; reason: "not-found" };
+
+export type CreatePostResult = Ok | Invalid;
+export type UpdatePostResult = Ok | Invalid | WrongPassword | NotFound;
+export type DeletePostResult = Ok | WrongPassword | NotFound;
 
 export type Post = {
   id: string;
@@ -73,6 +78,70 @@ export async function createPost(input: {
     VALUES (${name}, ${message}, ${passwordHash})
   `;
   return { ok: true };
+}
+
+/** 게시글 비밀번호가 맞으면 메시지만 수정한다. 이름과 게시글 비밀번호는 바뀌지 않는다. */
+export async function updatePostMessage(input: {
+  id: string;
+  message: string;
+  password: string;
+}): Promise<UpdatePostResult> {
+  const message = normalizeNewlines(input.message).trim();
+  const messageError = checkLength("message", message);
+  if (messageError) {
+    return { ok: false, reason: "invalid", fieldErrors: { message: messageError } };
+  }
+
+  const check = await checkPostPassword(input.id, input.password);
+  if (!check.ok) return check;
+
+  const rows = await sql`
+    UPDATE posts SET message = ${message}, updated_at = now()
+    WHERE id = ${check.id}
+    RETURNING id
+  `;
+  // 비밀번호를 확인한 뒤 그사이에 삭제되었을 수 있다.
+  return rows.length > 0 ? { ok: true } : { ok: false, reason: "not-found" };
+}
+
+/** 게시글 비밀번호가 맞으면 게시글을 완전히 삭제한다. */
+export async function deletePost(input: {
+  id: string;
+  password: string;
+}): Promise<DeletePostResult> {
+  const check = await checkPostPassword(input.id, input.password);
+  if (!check.ok) return check;
+
+  const rows = await sql`
+    DELETE FROM posts WHERE id = ${check.id}
+    RETURNING id
+  `;
+  return rows.length > 0 ? { ok: true } : { ok: false, reason: "not-found" };
+}
+
+/** id로 해시를 조회해 게시글 비밀번호를 대조한다. 해시 비교는 서버에서만 한다(ADR-0001). */
+async function checkPostPassword(
+  rawId: string,
+  password: string,
+): Promise<{ ok: true; id: string } | WrongPassword | NotFound> {
+  const id = parseId(rawId);
+  if (id === null) return { ok: false, reason: "not-found" };
+
+  const rows = (await sql`
+    SELECT password_hash FROM posts WHERE id = ${id}
+  `) as { password_hash: string }[];
+  if (rows.length === 0) return { ok: false, reason: "not-found" };
+
+  const matches = await verifyPostPassword(password, rows[0].password_hash);
+  return matches ? { ok: true, id } : { ok: false, reason: "wrong-password" };
+}
+
+const MAX_BIGINT = BigInt("9223372036854775807");
+
+/** bigint 범위의 양의 정수 문자열만 id로 받는다. */
+function parseId(value: string): string | null {
+  if (!/^[1-9]\d{0,18}$/.test(value)) return null;
+  return BigInt(value) <= MAX_BIGINT ? value : null;
 }
 
 // 안내 문구에 쓸 목적격(을/를)과 주제격(은/는) 표현.

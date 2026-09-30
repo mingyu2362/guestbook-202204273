@@ -1,5 +1,7 @@
 import { formatKstDateTime } from "@/lib/format-time";
 import { listPosts, type Post } from "@/lib/posts";
+import { ListNoticeProvider } from "./list-notice";
+import { PostActions } from "./post-actions";
 import { PostForm } from "./post-form";
 
 export default async function Home() {
@@ -20,17 +22,19 @@ export default async function Home() {
         <PostForm />
 
         <section aria-label="게시글 목록">
-          {posts.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-10 text-center text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
-              아직 게시글이 없습니다. 첫 게시글을 남겨 보세요.
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-3">
-              {posts.map((post) => (
-                <PostItem key={post.id} post={post} />
-              ))}
-            </ul>
-          )}
+          <ListNoticeProvider>
+            {posts.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-10 text-center text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                아직 게시글이 없습니다. 첫 게시글을 남겨 보세요.
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {posts.map((post) => (
+                  <PostItem key={post.id} post={post} />
+                ))}
+              </ul>
+            )}
+          </ListNoticeProvider>
         </section>
       </main>
     </div>
@@ -44,16 +48,25 @@ function PostItem({ post }: { post: Post }) {
         <span className="font-medium text-zinc-900 dark:text-zinc-100">
           {post.name}
         </span>
-        <time
-          dateTime={post.createdAt.toISOString()}
-          className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400"
-        >
-          {formatKstDateTime(post.createdAt)}
-        </time>
+        <span className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
+          <time dateTime={post.createdAt.toISOString()}>
+            {formatKstDateTime(post.createdAt)}
+          </time>
+          {post.updatedAt && (
+            <time
+              dateTime={post.updatedAt.toISOString()}
+              title={`수정: ${formatKstDateTime(post.updatedAt)}`}
+              className="ml-1"
+            >
+              (수정됨)
+            </time>
+          )}
+        </span>
       </div>
       <p className="mt-2 whitespace-pre-wrap break-words text-zinc-700 dark:text-zinc-300">
         {post.message}
       </p>
+      <PostActions id={post.id} message={post.message} />
     </li>
   );
 }
