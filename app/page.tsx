@@ -3,6 +3,7 @@ import { listPosts, type Post } from "@/lib/posts";
 import { ListNoticeProvider } from "./list-notice";
 import { PostActions } from "./post-actions";
 import { PostForm } from "./post-form";
+import { RelativeTime } from "./relative-time";
 
 export default async function Home() {
   const posts = await listPosts();
@@ -49,9 +50,7 @@ function PostItem({ post }: { post: Post }) {
           {post.name}
         </span>
         <span className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
-          <time dateTime={post.createdAt.toISOString()}>
-            {formatKstDateTime(post.createdAt)}
-          </time>
+          <RelativeTime iso={post.createdAt.toISOString()} />
           {post.updatedAt && (
             <time
               dateTime={post.updatedAt.toISOString()}
