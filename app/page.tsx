@@ -1,5 +1,6 @@
 import { formatKstDateTime } from "@/lib/format-time";
 import { listPosts, type Post } from "@/lib/posts";
+import { PostForm } from "./post-form";
 
 export default async function Home() {
   const posts = await listPosts();
@@ -15,6 +16,8 @@ export default async function Home() {
             조민규 · 202204273
           </p>
         </header>
+
+        <PostForm />
 
         <section aria-label="게시글 목록">
           {posts.length === 0 ? (
