@@ -55,13 +55,15 @@ function useMutation(
   action: (prev: PostMutationState, formData: FormData) => Promise<PostMutationState>,
   onClose: () => void,
 ) {
-  const showNotice = useListNotice();
+  const { showNotice, clearNotice } = useListNotice();
   return useActionState(async (prev: PostMutationState, formData: FormData) => {
     const next = await action(prev, formData);
-    if (next.status === "ok") onClose();
     if (next.status === "not-found" && next.notice) {
       showNotice(next.notice);
       onClose();
+    } else {
+      clearNotice();
+      if (next.status === "ok") onClose();
     }
     return next;
   }, initialState);

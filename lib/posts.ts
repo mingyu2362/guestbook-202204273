@@ -95,8 +95,11 @@ export async function updatePostMessage(input: {
   const check = await checkPostPassword(input.id, input.password);
   if (!check.ok) return check;
 
+  // 메시지가 실제로 바뀔 때만 수정 시각을 기록한다. 그대로 저장하면 "(수정됨)"이 붙지 않는다.
   const rows = await sql`
-    UPDATE posts SET message = ${message}, updated_at = now()
+    UPDATE posts
+    SET message = ${message},
+        updated_at = CASE WHEN message IS DISTINCT FROM ${message} THEN now() ELSE updated_at END
     WHERE id = ${check.id}
     RETURNING id
   `;

@@ -2,6 +2,7 @@
 
 import { useActionState, type ReactNode } from "react";
 import { createPostAction, type CreatePostFormState } from "./actions";
+import { useListNotice } from "./list-notice";
 import { POST_LIMITS } from "@/lib/post-limits";
 
 const initialState: CreatePostFormState = {
@@ -13,8 +14,13 @@ const inputClass =
   "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-500 aria-invalid:border-red-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
 
 export function PostForm() {
+  const { clearNotice } = useListNotice();
   const [state, formAction, pending] = useActionState(
-    createPostAction,
+    async (prev: CreatePostFormState, formData: FormData) => {
+      const next = await createPostAction(prev, formData);
+      clearNotice();
+      return next;
+    },
     initialState,
   );
   const { fieldErrors, values } = state;

@@ -1,6 +1,6 @@
 import { formatKstDateTime } from "@/lib/format-time";
 import { listPosts, type Post } from "@/lib/posts";
-import { ListNoticeProvider } from "./list-notice";
+import { ListNotice, ListNoticeProvider } from "./list-notice";
 import { PostActions } from "./post-actions";
 import { PostForm } from "./post-form";
 import { RelativeTime } from "./relative-time";
@@ -20,10 +20,11 @@ export default async function Home() {
           </p>
         </header>
 
-        <PostForm />
+        <ListNoticeProvider>
+          <PostForm />
 
-        <section aria-label="게시글 목록">
-          <ListNoticeProvider>
+          <section aria-label="게시글 목록">
+            <ListNotice />
             {posts.length === 0 ? (
               <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-10 text-center text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                 아직 게시글이 없습니다. 첫 게시글을 남겨 보세요.
@@ -35,8 +36,8 @@ export default async function Home() {
                 ))}
               </ul>
             )}
-          </ListNoticeProvider>
-        </section>
+          </section>
+        </ListNoticeProvider>
       </main>
     </div>
   );

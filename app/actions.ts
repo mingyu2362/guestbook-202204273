@@ -41,7 +41,7 @@ export type PostMutationState = {
   message: string | null;
 };
 
-const WRONG_PASSWORD = "비밀번호가 일치하지 않습니다.";
+const WRONG_PASSWORD = "게시글 비밀번호가 일치하지 않습니다.";
 const NOT_FOUND = "이미 삭제되었거나 존재하지 않는 게시글입니다.";
 
 export async function updatePostAction(
