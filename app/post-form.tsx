@@ -11,7 +11,7 @@ const initialState: CreatePostFormState = {
 };
 
 const inputClass =
-  "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-500 aria-invalid:border-red-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+  "w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 py-2.5 text-stone-800 placeholder:text-stone-400 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-100 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-100 dark:focus:border-amber-500 dark:focus:bg-stone-800 dark:focus:ring-amber-900/60 dark:aria-invalid:ring-red-950";
 
 export function PostForm() {
   const { clearNotice } = useListNotice();
@@ -30,9 +30,9 @@ export function PostForm() {
   return (
     <form
       action={formAction}
-      className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+      className="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(120,90,50,0.06),0_6px_20px_-6px_rgba(120,90,50,0.12)] ring-1 ring-stone-200/70 sm:p-6 dark:bg-stone-900 dark:shadow-none dark:ring-stone-800"
     >
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-4 sm:flex-row">
         <Field label="이름" error={fieldErrors.name} className="sm:flex-1">
           <input
             name="name"
@@ -74,7 +74,7 @@ export function PostForm() {
       <button
         type="submit"
         disabled={pending}
-        className="self-end rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        className="w-full rounded-xl bg-amber-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-amber-800 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:self-end dark:bg-amber-600 dark:hover:bg-amber-500 dark:focus-visible:ring-offset-stone-900"
       >
         {pending ? "등록 중…" : "등록"}
       </button>
@@ -94,13 +94,13 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <label className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+    <label className={`flex min-w-0 flex-col gap-1.5 ${className}`}>
+      <span className="text-sm font-medium text-stone-600 dark:text-stone-300">
         {label}
       </span>
       {children}
       {error && (
-        <span role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <span role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
           {error}
         </span>
       )}

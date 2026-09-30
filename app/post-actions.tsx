@@ -19,13 +19,13 @@ const initialState: PostMutationState = {
 };
 
 const inputClass =
-  "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-500 aria-invalid:border-red-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+  "w-full rounded-xl border border-stone-200 bg-stone-50/60 px-3 py-2 text-sm text-stone-800 placeholder:text-stone-400 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-100 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-100 dark:focus:border-amber-500 dark:focus:bg-stone-800 dark:focus:ring-amber-900/60 dark:aria-invalid:ring-red-950";
 const primaryButton =
-  "rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300";
-const dangerButton =
-  "rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-amber-800 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:bg-amber-600 dark:hover:bg-amber-500";
+// 포인트 색을 하나로 통일한다. 빨간 톤은 오류 안내에만 쓴다.
+const dangerButton = primaryButton;
 const secondaryButton =
-  "rounded-md px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800";
+  "rounded-lg px-2.5 py-1 text-xs text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700 disabled:opacity-50 dark:text-stone-500 dark:hover:bg-stone-800 dark:hover:text-stone-300";
 
 /** 게시글 하나의 [수정]/[삭제] 버튼과 인라인 폼. 한 번에 한 모드만 펼친다. */
 export function PostActions({ id, message }: { id: string; message: string }) {
@@ -39,7 +39,7 @@ export function PostActions({ id, message }: { id: string; message: string }) {
     return <DeleteForm id={id} onClose={close} />;
   }
   return (
-    <div className="mt-2 flex justify-end gap-1">
+    <div className="mt-3 flex justify-end gap-0.5">
       <button type="button" onClick={() => setMode("edit")} className={secondaryButton}>
         수정
       </button>
@@ -83,7 +83,7 @@ function EditForm({
   // React 19는 제출 후 폼을 초기화한다. 실패하면 돌려받은 메시지가 defaultValue가 되어 편집 내용이 남고,
   // 비밀번호 칸은 비워진다.
   return (
-    <form action={formAction} className="mt-3 flex flex-col gap-2">
+    <form action={formAction} className="mt-4 flex flex-col gap-2.5 border-t border-stone-100 pt-4 dark:border-stone-800">
       <input type="hidden" name="id" value={id} />
       <textarea
         name="message"
@@ -110,7 +110,7 @@ function DeleteForm({ id, onClose }: { id: string; onClose: () => void }) {
   const [state, formAction, pending] = useMutation(deletePostAction, onClose);
 
   return (
-    <form action={formAction} className="mt-3 flex flex-col gap-2">
+    <form action={formAction} className="mt-4 flex flex-col gap-2.5 border-t border-stone-100 pt-4 dark:border-stone-800">
       <input type="hidden" name="id" value={id} />
       <PasswordRow pending={pending} onCancel={onClose}>
         <button type="submit" disabled={pending} className={dangerButton}>
@@ -142,7 +142,7 @@ function PasswordRow({
         maxLength={POST_LIMITS.password.max}
         autoComplete="current-password"
         autoFocus
-        className={`${inputClass} min-w-0 flex-1`}
+        className={`${inputClass} min-w-0 basis-full sm:basis-0 sm:flex-1`}
       />
       {children}
       <button type="button" onClick={onCancel} disabled={pending} className={secondaryButton}>
@@ -154,7 +154,7 @@ function PasswordRow({
 
 function Alert({ children }: { children: ReactNode }) {
   return (
-    <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+    <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700 ring-1 ring-red-200 dark:bg-red-950/50 dark:text-red-300 dark:ring-red-900">
       {children}
     </p>
   );
